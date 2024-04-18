@@ -1,0 +1,59 @@
+{
+  "name": "dependency-cruiser-ts",
+  "displayName": "Dependency Cruiser TS",
+  "description": "Generates a dependency graph from a JavaScript or TypeScript file",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.88.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Remiscan/dependency-cruiser-ts-extension.git"
+  },
+  "homepage": "https://github.com/Remiscan/dependency-cruiser-ts-extension",
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "dependency-cruiser-ts.analyzeDependencies",
+        "title": "See dependency graph"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "when": "resourceLangId == typescript || resourceLangId == javascript",
+          "command": "dependency-cruiser-ts.analyzeDependencies",
+          "group": "dependency-cruiser-ts"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "18.x",
+    "@types/vscode": "^1.88.0",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
+    "@vscode/test-cli": "^0.0.8",
+    "@vscode/test-electron": "^2.3.9",
+    "eslint": "^8.57.0"
+  },
+  "dependencies": {
+    "@viz-js/viz": "^3.4.0",
+    "dependency-cruiser": "^16.3.1",
+    "typescript": "^5.4.5"
+  }
+}
