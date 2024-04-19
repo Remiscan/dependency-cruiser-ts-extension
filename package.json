@@ -3,6 +3,7 @@
   "displayName": "Dependency Cruiser TS",
   "description": "Generates a dependency graph from a JavaScript or TypeScript file",
   "version": "0.0.1",
+  "publisher": "Remiscan",
   "engines": {
     "vscode": "^1.88.0"
   },
@@ -31,9 +32,63 @@
           "group": "dependency-cruiser-ts"
         }
       ]
+    },
+    "configuration": {
+      "title": "Dependency Cruiser TS",
+      "properties": {
+        "dependency-cruiser-ts.tsConfigNames": {
+          "type": "string",
+          "default": "tsconfig.json, jsconfig.json",
+          "markdownDescription": "Comma-separated list of file **names** (**not** paths) to check for a tsconfig.json file. The first one that exists is used. For example : `tsconfig.json, jsconfig.json`"
+        },
+        "dependency-cruiser-ts.graph.reporter": {
+          "type": "string",
+          "default": "dot",
+          "markdownDescription": "Reporter used to generate the graph. Makes the nodes represent files (dot), folders (ddot) or ? (archi)",
+          "enum": [
+            "dot",
+            "ddot",
+            "archi"
+          ],
+          "enumItemLabels": [
+            "File level",
+            "Folder level"
+          ]
+        },
+        "dependency-cruiser-ts.graph.theme": {
+          "type": "string",
+          "default": "base",
+          "markdownDescription": "Visual theme used in the graph.",
+          "enum": [
+            "base"
+          ]
+        },
+        "dependency-cruiser-ts.graph.direction": {
+          "type": "string",
+          "default": "LR",
+          "enum": [
+            "LR",
+            "TB",
+            "RL",
+            "BT"
+          ],
+          "enumItemLabels": [
+            "Left to right",
+            "Top to bottom",
+            "Right to left",
+            "Bottom to top"
+          ]
+        },
+        "dependency-cruiser-ts.graph.collapsePattern": {
+          "type": "string",
+          "default": "node_modules/(@[^/]+/[^/]+|[^/]+)",
+          "mardownDescription": "Regular expression used to collapse parts of the graph."
+        }
+      }
     }
   },
   "scripts": {
+    "bundle:dc": "esbuild ./node_modules/dependency-cruiser/src/main/cruise.mjs --bundle --outfile=dist/dependency-cruiser.js --external:vscode --external:enhanced-resolve/lib/createInnerCallback --alias:dependency-cruiser=dist/dependency-cruiser.js --format=esm --platform=node",
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
@@ -49,6 +104,7 @@
     "@typescript-eslint/parser": "^7.4.0",
     "@vscode/test-cli": "^0.0.8",
     "@vscode/test-electron": "^2.3.9",
+    "esbuild": "^0.20.2",
     "eslint": "^8.57.0"
   },
   "dependencies": {

@@ -1,10 +1,8 @@
 import * as vscode from 'vscode';
 
-export function openGraph({ vsc, fileName, graph, context }: {
-	vsc: typeof vscode,
+export function openGraph({ fileName, graph }: {
 	fileName: string,
 	graph: string,
-	context: vscode.ExtensionContext
 }) {
 	const title = `${fileName} (dependencies)`;
 	const panel = vscode.window.createWebviewPanel(

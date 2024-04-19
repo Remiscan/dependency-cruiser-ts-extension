@@ -10,6 +10,8 @@ This VS Code extension uses [dependency-cruiser](https://github.com/sverweij/dep
 
 ## Extension Settings
 
-> SOON
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+* `dependency-cruiser-ts.tsConfigNames`: Set the names of your tsconfig or jsconfig files.
+* `dependency-cruiser-ts.graph.reporter`: Set to reporter (dot, ddot, archi)
+* `dependency-cruiser-ts.graph.theme`: Set the graph theme (only one available for now)
+* `dependency-cruiser-ts.graph.direction`: Set the graph direction (left to right, top to bottom, right to left, bottom to top)
+* `dependency-cruiser-ts.graph.collapsePattern`: Set the pattern used to collapse parts of the graph

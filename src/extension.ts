@@ -30,8 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		try {
 			process.chdir(workspaceFolderPath);
-			const analysis = await analyzeDependencies(relativeFilePath);
-			//vscode.window.showInformationMessage(String(analysis.output));
+			const analysis = await analyzeDependencies(relativeFilePath, { workspaceFolderPath });
 
 			const viz = await instance();
 			if (typeof analysis.output !== 'string') {
@@ -42,13 +41,10 @@ export function activate(context: vscode.ExtensionContext) {
 				format: 'svg',
 				engine: 'dot',
 			});
-			vscode.window.showInformationMessage(graph);
 			
 			return openGraph({
-				vsc: vscode,
 				fileName,
 				graph,
-				context
 			});
 		} catch (error) {
 			if (error instanceof Error) {
