@@ -4,14 +4,14 @@ export default {
 		color: "gray",
 		fontcolor: "black",
 		fillcolor: "transparent",
-		style: "solid",
-		nodesep: 0.3,
-		ranksep: 0.3,
+		style: "rounded",
+		nodesep: 0.25,
+		ranksep: 0.25,
 	},
 	edge: {
 		arrowhead: "normal",
 		arrowsize: "1.0",
 		penwidth: "1.0",
-		color: "#283178b3",
+		color: "#28317873",
 	},
 }
