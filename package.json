@@ -46,24 +46,50 @@
           "default": "node_modules/(@[^/]+/[^/]+|[^/]+)",
           "markdownDescription": "Regular expression used to collapse parts of the graph. For example, if your project imports `@foo/bar/one.js`, `@foo/bar/two.js` and `@foo/qux/three.js` :\n- `node_modules/(@[^/]+/[^/]+|[^/]+)` will collapse the `node_modules` part of the graph into two nodes: `@foo/bar` and `@foo/qux`\n- `node_modules/[^/]+` will collapse the `node_modules` part of the graph into one node: `@foo`"
         },
+        "dependency-cruiser-ts.analysis.includeOnly": {
+          "type": "string",
+          "markdownDescription": "Regular expression that restricts the dependency analysis to files that match it. Can be combined with the `exclude` option. For example:\n- `^src/` will ignore imports from outside of the `src` folder."
+        },
+        "dependency-cruiser-ts.analysis.exclude": {
+          "type": "string",
+          "markdownDescription": "Regular expression that excludes the files that match it from the dependency analysis. Can be combined with the `includeOnly` option. For example:\n- `^node_modules/` will ignore imports from inside of the `node_modules` folder.\n"
+        },
         "dependency-cruiser-ts.graph.theme": {
           "type": "string",
           "default": "improved",
           "description": "Visual theme used in the graph.",
-          "enum": ["improved", "basic", "none"]
+          "enum": [
+            "improved",
+            "basic",
+            "none"
+          ]
         },
         "dependency-cruiser-ts.graph.colorScheme": {
           "type": "string",
           "default": "system",
           "description": "Color scheme (light or dark) used in the graph.",
-          "enum": ["system", "light", "dark"],
-          "enumDescriptions": ["Follows your system settings", "Light mode", "Dark mode"]
+          "enum": [
+            "system",
+            "light",
+            "dark"
+          ],
+          "enumDescriptions": [
+            "Follows your system settings",
+            "Light mode",
+            "Dark mode"
+          ]
         },
         "dependency-cruiser-ts.graph.linesShape": {
           "type": "string",
           "default": "spline",
           "description": "Controls the shape of the lines between nodes.",
-          "enum": ["spline", "curved", "ortho", "line", "polyline"],
+          "enum": [
+            "spline",
+            "curved",
+            "ortho",
+            "line",
+            "polyline"
+          ],
           "enumDescriptions": [
             "Lines will be curved and avoid other nodes",
             "Lines will be curved an go through other nodes",

@@ -60,6 +60,8 @@ export async function analyzeDependencies(
 		moduleSystems: ['es6', 'cjs'],
 		tsPreCompilationDeps: true,
 		tsConfig: { fileName: tsConfigUri?.path },
+		includeOnly: userSettings.analysis.includeOnly || undefined,
+		exclude: userSettings.analysis.exclude || undefined,
 		reporterOptions: {
 			dot: {
 				theme: theme,
