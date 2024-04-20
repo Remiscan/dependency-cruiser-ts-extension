@@ -21,6 +21,7 @@ export async function analyzeDependencies(
 	relativeFilePath: string,
 	workspaceFolderPath: string,
 	userSettings: vscode.WorkspaceConfiguration,
+	{ isTypescript }: { isTypescript: boolean }
 ) {
 	const DepCruiser = await import('dependency-cruiser');
 	const cruise = DepCruiser.cruise;
@@ -46,7 +47,9 @@ export async function analyzeDependencies(
 	// --------------------
 	// #region GET TSCONFIG
 
-	const tsConfigUri = await findTsConfig(relativeFilePath, workspaceFolderPath, userSettings);
+	const tsConfigUri = isTypescript
+		? await findTsConfig(relativeFilePath, workspaceFolderPath, userSettings)
+		: undefined;
 
 	// #endregion
 	// --------------------

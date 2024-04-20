@@ -28,8 +28,7 @@
       "explorer/context": [
         {
           "when": "resourceLangId == typescript || resourceLangId == javascript",
-          "command": "dependency-cruiser-ts.analyzeDependencies",
-          "group": "dependency-cruiser-ts"
+          "command": "dependency-cruiser-ts.analyzeDependencies"
         }
       ]
     },

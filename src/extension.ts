@@ -3,12 +3,15 @@ import { analyzeDependencies } from './analyze-dependencies.js';
 import { makeGraph } from './make-graph.js';
 import { openGraph } from './open-graph.js';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
-	let disposable = vscode.commands.registerCommand('dependency-cruiser-ts.analyzeDependencies', async (_fileUri) => {
+
+
+function makeCommandHandler(
+	context: vscode.ExtensionContext,
+	{ isTypescript }: { isTypescript: boolean },
+) {
+	return async (_fileUri: vscode.Uri) => {
 		/** Uri of the file the user wants to analyze. */
-		const fileUri = _fileUri ?? vscode.window.activeTextEditor?.document.uri;
+		const fileUri = (_fileUri  as vscode.Uri) ?? vscode.window.activeTextEditor?.document.uri;
 		if (!fileUri) throw new Error(`Undefined file uri`);
 
 		/** Path of the workspace folder that contains the file the user wants to analyze. */
@@ -32,12 +35,14 @@ export function activate(context: vscode.ExtensionContext) {
 			title: `Computing dependency graph for "${fileName}"...`
 		}, async (progress) => {
 			try {
+				const isTypeScript = fileUri
 				// Analyze dependencies
 				process.chdir(workspaceFolderPath);
 				const analysis = await analyzeDependencies(
 					relativeFilePath,
 					workspaceFolderPath,
 					userSettings,
+					{ isTypescript }
 				);
 
 				// Make the dependency graph
@@ -60,8 +65,18 @@ export function activate(context: vscode.ExtensionContext) {
 
 			progress.report({ increment: 100 });
 		});
-	});
+	};
+}
 
+
+
+// This method is called when your extension is activated
+// Your extension is activated the very first time the command is executed
+export function activate(context: vscode.ExtensionContext) {
+	let disposable = vscode.commands.registerCommand(
+		'dependency-cruiser-ts.analyzeDependencies',
+		makeCommandHandler(context, { isTypescript: true })
+	);
 	context.subscriptions.push(disposable);
 }
 
