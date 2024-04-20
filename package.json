@@ -125,8 +125,13 @@
     }
   },
   "scripts": {
-    "bundle:dc": "esbuild ./node_modules/dependency-cruiser/src/main/cruise.mjs --bundle --outfile=dist/dependency-cruiser.js --external:vscode --external:enhanced-resolve/lib/createInnerCallback --alias:dependency-cruiser=dist/dependency-cruiser.js --format=esm --platform=node",
+    "bundle:dc": "esbuild ./node_modules/dependency-cruiser/src/main/cruise.mjs --bundle --minify --outfile=dist/dependency-cruiser.js --external:vscode --external:enhanced-resolve/lib/createInnerCallback --alias:dependency-cruiser=dist/dependency-cruiser.js --format=esm --platform=node && rollup --config rollup.dc.config.mjs",
+    "vscode:prepublishNON": "npm run esbuild-base -- --minify",
     "vscode:prepublish": "npm run copy && npm run compile",
+    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node",
+    "esbuild": "npm run esbuild-base -- --sourcemap",
+    "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
+    "test-compile": "tsc -p ./",
     "copy": "mkdir -p ./out/webview && cp -R ./src/webview/* ./out/webview",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
@@ -135,6 +140,7 @@
     "test": "vscode-test"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
     "@types/vscode": "^1.88.0",
@@ -142,12 +148,14 @@
     "@typescript-eslint/parser": "^7.4.0",
     "@vscode/test-cli": "^0.0.8",
     "@vscode/test-electron": "^2.3.9",
+    "dependency-cruiser": "^16.3.1",
     "esbuild": "^0.20.2",
-    "eslint": "^8.57.0"
+    "eslint": "^8.57.0",
+    "rollup": "^4.15.0",
+    "rollup-plugin-dts": "^6.1.0"
   },
   "dependencies": {
     "@viz-js/viz": "^3.4.0",
-    "dependency-cruiser": "^16.3.1",
     "typescript": "^5.4.5"
   }
 }
