@@ -28,29 +28,44 @@ export function activate(context: vscode.ExtensionContext) {
 		console.log(relativeFilePath);
 		const fileName = relativeFilePath.split('/').at(-1);
 
-		try {
-			process.chdir(workspaceFolderPath);
-			const analysis = await analyzeDependencies(relativeFilePath, { workspaceFolderPath });
+		const userSettings = vscode.workspace.getConfiguration('dependency-cruiser-ts');
 
-			const viz = await instance();
-			if (typeof analysis.output !== 'string') {
-				throw new TypeError('Expecting string');
+		vscode.window.withProgress({
+			location: vscode.ProgressLocation.Notification,
+			cancellable: false,
+			title: `Computing dependency graph for "${fileName}"...`
+		}, async (progress) => {
+			try {
+				process.chdir(workspaceFolderPath);
+				const analysis = await analyzeDependencies(relativeFilePath, {
+					workspaceFolderPath,
+					userSettings
+				});
+	
+				const viz = await instance();
+				if (typeof analysis.output !== 'string') {
+					throw new TypeError('Expecting string');
+				}
+	
+				const graph = viz.renderString(analysis.output, {
+					format: 'svg',
+					engine: 'dot',
+				});
+				
+				return openGraph({
+					fileName,
+					graph,
+					colorScheme: userSettings.graph.colorScheme,
+					context
+				});
+			} catch (error) {
+				if (error instanceof Error) {
+					vscode.window.showErrorMessage(error.message);
+				}
 			}
 
-			const graph = viz.renderString(analysis.output, {
-				format: 'svg',
-				engine: 'dot',
-			});
-			
-			return openGraph({
-				fileName,
-				graph,
-			});
-		} catch (error) {
-			if (error instanceof Error) {
-				vscode.window.showErrorMessage(error.message);
-			}
-		}
+			progress.report({ increment: 100 });
+		});
 	});
 
 	context.subscriptions.push(disposable);

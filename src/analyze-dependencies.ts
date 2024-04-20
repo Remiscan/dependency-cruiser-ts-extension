@@ -1,35 +1,36 @@
 import * as vscode from 'vscode';
-import themeBase from './themes/base.js';
+import themeDefault from './themes/default.js';
 import themeEngineering from './themes/engineering.js';
+import themeImproved from './themes/improved.js';
 
 const themes = new Map([
-	['base', themeBase],
+	['improved', themeImproved],
+	['default', themeDefault],
 	['engineering', themeEngineering]
 ]);
 
 export async function analyzeDependencies(
 	relativeFilePath: string,
 	fnOptions: {
-		workspaceFolderPath: string
+		workspaceFolderPath: string,
+		userSettings: vscode.WorkspaceConfiguration
 	}
 ) {
 	const DepCruiser = await import('dependency-cruiser');
 	const cruise = DepCruiser.cruise;
 
-	const userSettings = vscode.workspace.getConfiguration('dependency-cruiser-ts');
+	const userSettings = fnOptions.userSettings;
 
 	// Setting: theme
 	const theme: {
 		[key: string]: unknown,
 		graph?: { [key: string]: unknown },
-	} = themes.get(userSettings.graph.theme ?? 'base') ?? {};
+	} = themes.get(userSettings.graph.theme) ?? {};
 
 	// Setting: graph direction
 	if (!('graph' in theme) || typeof theme.graph !== 'object') theme.graph = {};
-	theme.graph.rankdir = userSettings.graph.direction ?? 'LR';
-
-	// Setting: collapse pattern
-	const collapsePattern = userSettings.graph.collapsePattern;
+	theme.graph.rankdir = userSettings.graph.direction;
+	theme.graph.splines = userSettings.graph.linesShape;
 
 	// Setting: tsconfig location
 	const tsConfigNames = (userSettings.tsConfigNames as string)
@@ -56,7 +57,7 @@ export async function analyzeDependencies(
 	// Do not stop if there is no .tsconfig! Graphs can still be made, for example for a JS project
 
 	// Setting: reporter
-	const reporter = userSettings.graph.reporter ?? 'dot';
+	const reporter = userSettings.analysis.reporter;
 
 	const options: NonNullable<Parameters<typeof cruise>[1]> = {
 		outputType: reporter,
@@ -67,7 +68,7 @@ export async function analyzeDependencies(
 		reporterOptions: {
 			dot: {
 				theme: theme,
-				collapsePattern: collapsePattern,
+				collapsePattern: userSettings.analysis.collapsePattern,
 			}
 		},
 		parser: 'tsc',
