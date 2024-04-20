@@ -147,7 +147,6 @@
     "@typescript-eslint/parser": "^7.4.0",
     "@vscode/test-cli": "^0.0.8",
     "@vscode/test-electron": "^2.3.9",
-    "dependency-cruiser": "^16.3.1",
     "esbuild": "^0.20.2",
     "eslint": "^8.57.0",
     "rollup": "^4.15.0",
@@ -155,6 +154,7 @@
   },
   "dependencies": {
     "@viz-js/viz": "^3.4.0",
+    "dependency-cruiser": "^16.3.1",
     "typescript": "^5.4.5"
   }
 }
