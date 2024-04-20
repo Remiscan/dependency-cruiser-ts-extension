@@ -1,70 +1,65 @@
 import * as vscode from 'vscode';
-import themeDefault from './themes/default.js';
-import themeEngineering from './themes/engineering.js';
-import themeImproved from './themes/improved.js';
+import { findTsConfig } from './find-tsconfig';
 
-const themes = new Map([
-	['improved', themeImproved],
-	['default', themeDefault],
-	['engineering', themeEngineering]
-]);
 
+
+type Theme = {
+	graph?: { [key: string]: unknown },
+};
+
+type ImportedTheme = { default: Theme } | { default: { default: Theme }};
+
+
+/**
+ * Uses `dependency-cruiser` to analyze the dependencies of a file.
+ * @param relativeFilePath - The path of the file to analyze.
+ * @param workspaceFolderPath - The path of the workspace folder that contains the file.
+ * @param userSettings - The user's extension settings.
+ * @returns The results of the analysis.
+ */
 export async function analyzeDependencies(
 	relativeFilePath: string,
-	fnOptions: {
-		workspaceFolderPath: string,
-		userSettings: vscode.WorkspaceConfiguration
-	}
+	workspaceFolderPath: string,
+	userSettings: vscode.WorkspaceConfiguration,
 ) {
 	const DepCruiser = await import('dependency-cruiser');
 	const cruise = DepCruiser.cruise;
 
-	const userSettings = fnOptions.userSettings;
 
-	// Setting: theme
-	const theme: {
-		[key: string]: unknown,
-		graph?: { [key: string]: unknown },
-	} = themes.get(userSettings.graph.theme) ?? {};
+	// ----------------------
+	// #region GET USER THEME
 
-	// Setting: graph direction
+	const themeFile: ImportedTheme = await import(`./themes/${userSettings.graph.theme}.js`);
+
+	// Node nests the default export...
+	let theme = themeFile.default;
+	if ('default' in theme) theme = theme.default;
+
 	if (!('graph' in theme) || typeof theme.graph !== 'object') theme.graph = {};
-	theme.graph.rankdir = userSettings.graph.direction;
-	theme.graph.splines = userSettings.graph.linesShape;
+	theme.graph.rankdir = userSettings.graph.direction; // Graph direction
+	//theme.graph.splines = userSettings.graph.linesShape; // Shape of the lines between nodes
 
-	// Setting: tsconfig location
-	const tsConfigNames = (userSettings.tsConfigNames as string)
-		.split(',')
-		.map(v => v.trim())
-		.filter(v => v);
-	const currentPath = relativeFilePath.split('/');
-	let realTsconfigName: string | undefined;
-	tsconfigSearch: while (currentPath.length > 0) {
-		currentPath.pop();
-		for (const name of tsConfigNames) {
-			const uri = vscode.Uri.file(fnOptions.workspaceFolderPath + '/' + currentPath.join('/') + '/' + name);
-			try {
-				const exists = !!(await vscode.workspace.fs.stat(uri));
-				if (exists) {
-					//vscode.window.showInformationMessage(`tsconfig.json found: ${uri.path}`);
-					realTsconfigName = name;
-					break tsconfigSearch;
-				}
-			} catch (error) {
-			}
-		}
-	}
-	// Do not stop if there is no .tsconfig! Graphs can still be made, for example for a JS project
+	// #endregion
+	// ----------------------
 
-	// Setting: reporter
-	const reporter = userSettings.analysis.reporter;
+
+	// --------------------
+	// #region GET TSCONFIG
+
+	const tsConfigUri = await findTsConfig(relativeFilePath, workspaceFolderPath, userSettings);
+
+	// #endregion
+	// --------------------
+
+
+	// ---------------------------
+	// #region CRUISE DEPENDENCIES
 
 	const options: NonNullable<Parameters<typeof cruise>[1]> = {
-		outputType: reporter,
+		outputType: userSettings.analysis.reporter,
 		moduleSystems: ['es6', 'cjs'],
 		tsPreCompilationDeps: true,
-		tsConfig: { fileName: realTsconfigName },
-		//prefix: `vscode://file/${process.cwd()}/`,
+		tsConfig: { fileName: tsConfigUri?.path },
 		reporterOptions: {
 			dot: {
 				theme: theme,
@@ -78,6 +73,10 @@ export async function analyzeDependencies(
 		[relativeFilePath],
 		options
 	);
+
+	// # endregion
+	// ---------------------------
+
 
 	return cruiseResult;
 }

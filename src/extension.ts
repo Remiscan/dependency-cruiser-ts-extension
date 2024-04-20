@@ -1,64 +1,58 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import { instance } from '@viz-js/viz';
 import * as vscode from 'vscode';
 import { analyzeDependencies } from './analyze-dependencies.js';
+import { makeGraph } from './make-graph.js';
 import { openGraph } from './open-graph.js';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "dependency-cruiser-ts" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('dependency-cruiser-ts.analyzeDependencies', async (fileUri) => {
-		if (!fileUri) fileUri = vscode.window.activeTextEditor?.document.uri;
+	let disposable = vscode.commands.registerCommand('dependency-cruiser-ts.analyzeDependencies', async (_fileUri) => {
+		/** Uri of the file the user wants to analyze. */
+		const fileUri = _fileUri ?? vscode.window.activeTextEditor?.document.uri;
 		if (!fileUri) throw new Error(`Undefined file uri`);
 
-		const absoluteFilePath = fileUri.path;
+		/** Path of the workspace folder that contains the file the user wants to analyze. */
 		const workspaceFolderPath = vscode.workspace.getWorkspaceFolder(fileUri)?.uri.path;
 		if (!workspaceFolderPath) throw new Error('Undefined workspace folder path');
 
-		const relativeFilePath = absoluteFilePath.replace(`${workspaceFolderPath}/`, '');
-		console.log(relativeFilePath);
+		/** Path of the file the user wants to analyze relative to the workspace folder that contains it. */
+		const relativeFilePath = fileUri.path.replace(`${workspaceFolderPath}/`, '');
 		const fileName = relativeFilePath.split('/').at(-1);
 
+		/**
+		 * Extension settings.  
+		 * Takes the default values defined in `package.json` and overwrites them with with user settings.
+		 */
 		const userSettings = vscode.workspace.getConfiguration('dependency-cruiser-ts');
 
+		// Displays a loading bar in a notification while the dependency graph is being computed
 		vscode.window.withProgress({
 			location: vscode.ProgressLocation.Notification,
 			cancellable: false,
 			title: `Computing dependency graph for "${fileName}"...`
 		}, async (progress) => {
 			try {
+				// Analyze dependencies
 				process.chdir(workspaceFolderPath);
-				const analysis = await analyzeDependencies(relativeFilePath, {
+				const analysis = await analyzeDependencies(
+					relativeFilePath,
 					workspaceFolderPath,
-					userSettings
-				});
-	
-				const viz = await instance();
-				if (typeof analysis.output !== 'string') {
-					throw new TypeError('Expecting string');
-				}
-	
-				const graph = viz.renderString(analysis.output, {
-					format: 'svg',
-					engine: 'dot',
-				});
-				
-				return openGraph({
-					fileName,
+					userSettings,
+				);
+
+				// Make the dependency graph
+				const graph = await makeGraph(analysis);
+
+				// Display the graph in a new tab
+				return openGraph(
 					graph,
-					colorScheme: userSettings.graph.colorScheme,
+					`${fileName} (dependencies)`,
+					userSettings,
 					context
-				});
-			} catch (error) {
+				);
+			}
+
+			catch (error) {
 				if (error instanceof Error) {
 					vscode.window.showErrorMessage(error.message);
 				}

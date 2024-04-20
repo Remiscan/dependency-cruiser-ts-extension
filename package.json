@@ -36,10 +36,10 @@
     "configuration": {
       "title": "Dependency Cruiser TS",
       "properties": {
-        "dependency-cruiser-ts.tsConfigNames": {
+        "dependency-cruiser-ts.tsConfigPattern": {
           "type": "string",
-          "default": "tsconfig.json, jsconfig.json",
-          "markdownDescription": "Comma-separated list of file **names** (**not** paths) to check for a tsconfig.json file. The first one that exists is used. For example : `tsconfig.json, jsconfig.json`"
+          "default": "*{ts,js}config*.json",
+          "markdownDescription": "Glob pattern for the file **name** (not path) of the tsconfig file. The extension will walk back from the folder that contains the analyzed file, and check each ancestor folder until it finds a tsconfig file that matches the pattern. If multiple matching files are found, you will be prompted to choose one."
         },
         "dependency-cruiser-ts.analysis.reporter": {
           "type": "string",

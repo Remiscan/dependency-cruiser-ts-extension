@@ -5,10 +5,11 @@ export default {
 		fontcolor: "black",
 		fillcolor: "transparent",
 		style: "solid",
+		nodesep: 0.3,
+		ranksep: 0.3,
 	},
 	edge: {
 		arrowhead: "normal",
-		arrowtail: "inv",
 		arrowsize: "1.0",
 		penwidth: "1.0",
 		color: "#283178b3",

@@ -1,23 +1,13 @@
 import * as vscode from 'vscode';
 
-export function openGraph({ fileName, graph, colorScheme, context }: {
-	fileName: string,
-	graph: string,
-	colorScheme: string,
-	context: vscode.ExtensionContext
-}) {
-	const title = `${fileName} (dependencies)`;
-	const webviewResourceUri = vscode.Uri.joinPath(context.extensionUri, 'out/webview');
-	const panel = vscode.window.createWebviewPanel(
-		`dependency-cruiser-results-${Date.now()}`,
-		title,
-		vscode.ViewColumn.One,
-		{
-			enableScripts: true,
-			localResourceRoots: [webviewResourceUri]
-		}
-	);
 
+
+/**
+ * Creates the CSS applied to the VS Code tab that will display the graph.  
+ * @param colorScheme - The color scheme extension setting.
+ * @returns A string containing the CSS.
+ */
+function makePanelStyles(colorScheme: string): string {
 	const darkModeStyle = /*css*/`
 		body {
 			filter: invert() hue-rotate(180deg);
@@ -38,37 +28,83 @@ export function openGraph({ fileName, graph, colorScheme, context }: {
 			`;
 	}
 
+	return style;
+}
+
+
+/**
+ * Opens the requested file in a VS Code tab.
+ * @param path - The path of the requested file, relative to its workspace folder.
+ */
+async function openFileInVSCode(path: string) {
+	try {
+		let realFileUri: vscode.Uri | undefined;
+
+		// Search for the requested file in all workspace folders
+		// (it could be in another workspace folder than the file that was analyzed?)
+		const workspaceFolders = vscode.workspace.workspaceFolders;
+		if (!workspaceFolders) throw new Error('No folder opened in workspace');
+		searchFile: for (const folder of workspaceFolders) {
+			try {
+				const tempUri = vscode.Uri.joinPath(folder.uri, path);
+				await vscode.workspace.fs.stat(tempUri);
+				realFileUri = tempUri;
+				break searchFile;
+			} catch (error) {}
+		}
+		if (!realFileUri) throw new Error(`Could not find "${path}" in workspace`);
+
+		// If the file was found, open it
+		const doc = await vscode.workspace.openTextDocument(realFileUri);
+		await vscode.window.showTextDocument(doc);
+	}
+
+	catch (error) {
+		if (error instanceof Error) vscode.window.showErrorMessage(error.message);
+	}
+}
+
+
+/**
+ * Opens a graph in a new VS Code tab.
+ * @param graph - A string containing the SVG of the graph.
+ * @param title - The title of the tab that will display the graph.
+ * @param userSettings - The user's extension settings.
+ * @param context - The extension context.
+ */
+export function openGraph(
+	graph: string,
+	title: string,
+	userSettings: vscode.WorkspaceConfiguration,
+	context: vscode.ExtensionContext,
+): void {
+	// Create the tab
+	// and allow it to load a script that will open files when clicking on nodes
+	const webviewResourceUri = vscode.Uri.joinPath(context.extensionUri, 'out/webview');
+	const panel = vscode.window.createWebviewPanel(
+		`dependency-cruiser-results-${Date.now()}`,
+		title,
+		vscode.ViewColumn.One,
+		{
+			enableScripts: true,
+			localResourceRoots: [webviewResourceUri]
+		}
+	);
+
+	// Listen for messages from the tab, asking to open files whose nodes were clicked on
 	panel.webview.onDidReceiveMessage(
 		async (message) => {
 			switch (message.action) {
-				case 'open':
-					try {
-						let realFileUri: vscode.Uri | undefined;
-						const workspaceFolders = vscode.workspace.workspaceFolders;
-						if (!workspaceFolders) throw new Error('No folder opened in workspace');
-						searchFile: for (const folder of workspaceFolders) {
-							try {
-								const tempUri = vscode.Uri.joinPath(folder.uri, message.path);
-								await vscode.workspace.fs.stat(tempUri);
-								realFileUri = tempUri;
-								break searchFile;
-							} catch (error) {}
-						}
-						if (!realFileUri) throw new Error(`Could not find "${message.path}" in workspace`);
-						const doc = await vscode.workspace.openTextDocument(realFileUri);
-						await vscode.window.showTextDocument(doc);
-					} catch (error) {
-						if (error instanceof Error) vscode.window.showErrorMessage(error.message);
-					}
-					break;
+				case 'open': openFileInVSCode(message.path); break;
 			}
 		}
 	);
 
+	// Load the script that will send messages to open files when their nodes are clicked on
 	const scriptUri = vscode.Uri.joinPath(context.extensionUri, 'out/webview/open-links-in-vscode.js');
-	vscode.window.showErrorMessage(scriptUri.path);
 	const panelScriptUri = panel.webview.asWebviewUri(scriptUri);
 
+	// Create the tab's HTML
 	panel.webview.html = `
 		<!DOCTYPE html>
 		<html lang="en">
@@ -76,7 +112,7 @@ export function openGraph({ fileName, graph, colorScheme, context }: {
 				<meta charset="UTF-8">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<title${title}</title>
-				<style>${style}</style>
+				<style>${makePanelStyles(userSettings.graph.colorScheme)}</style>
 				<script type="module" src="${panelScriptUri}"></script>
 			</head>
 			<body>
