@@ -10,7 +10,7 @@ This VS Code extension uses [dependency-cruiser](https://github.com/sverweij/dep
 
 ## Extension Settings
 
-* `dependency-cruiser-ts.analysis.collapsePattern`: Pattern used to collapse many graph nodes into one. [More info](https://github.com/sverweij/dependency-cruiser/blob/main/doc/options-reference.md#summarising-collapsepattern-dot-and-archi-reporters)
+* `dependency-cruiser-ts.analysis.collapsePattern`: Pattern used to collapse many graph nodes into a single one. [More info in the dependency-cruiser docs](https://github.com/sverweij/dependency-cruiser/blob/main/doc/options-reference.md#summarising-collapsepattern-dot-and-archi-reporters).
 * `dependency-cruiser-ts.analysis.tsConfigPattern`: Pattern used to auto detect your `tsconfig` or `jsconfig` file.
 * `dependency-cruiser-ts.graph.colorScheme`: Enables or disables dark mode.
 * `dependency-cruiser-ts.graph.direction`: Direction of the graph (left to right, top to bottom, etc.).
