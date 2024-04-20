@@ -37,7 +37,7 @@ export async function analyzeDependencies(
 
 	if (!('graph' in theme) || typeof theme.graph !== 'object') theme.graph = {};
 	theme.graph.rankdir = userSettings.graph.direction; // Graph direction
-	//theme.graph.splines = userSettings.graph.linesShape; // Shape of the lines between nodes
+	theme.graph.splines = userSettings.graph.linesShape; // Shape of the lines between nodes
 
 	// #endregion
 	// ----------------------
