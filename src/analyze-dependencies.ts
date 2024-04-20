@@ -56,7 +56,7 @@ export async function analyzeDependencies(
 	// #region CRUISE DEPENDENCIES
 
 	const options: NonNullable<Parameters<typeof cruise>[1]> = {
-		outputType: userSettings.analysis.reporter,
+		outputType: 'dot',
 		moduleSystems: ['es6', 'cjs'],
 		tsPreCompilationDeps: true,
 		tsConfig: { fileName: tsConfigUri?.path },
@@ -69,7 +69,7 @@ export async function analyzeDependencies(
 		parser: 'tsc',
 	};
 
-	const cruiseResult: Awaited<ReturnType<typeof cruise>> = await cruise(
+	const cruiseResult: Awaited< ReturnType<typeof cruise> > = await cruise(
 		[relativeFilePath],
 		options
 	);

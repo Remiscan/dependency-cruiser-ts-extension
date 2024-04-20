@@ -70,7 +70,7 @@ export async function findTsConfig(
 	workspaceFolderPath: string,
 	userSettings: vscode.WorkspaceConfiguration,
 ): Promise<vscode.Uri | null> {
-	const tsConfigPattern = userSettings.tsConfigPattern;
+	const tsConfigPattern = userSettings.analysis.tsConfigPattern;
 
 	// Find all tsconfig files in the workspace
 	const includeGlob = `**/${tsConfigPattern}`;

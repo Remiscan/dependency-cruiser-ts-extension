@@ -10,8 +10,9 @@ This VS Code extension uses [dependency-cruiser](https://github.com/sverweij/dep
 
 ## Extension Settings
 
-* `dependency-cruiser-ts.tsConfigNames`: Set the names of your tsconfig or jsconfig files.
-* `dependency-cruiser-ts.graph.reporter`: Set to reporter (dot, ddot, archi)
-* `dependency-cruiser-ts.graph.theme`: Set the graph theme (only one available for now)
-* `dependency-cruiser-ts.graph.direction`: Set the graph direction (left to right, top to bottom, right to left, bottom to top)
-* `dependency-cruiser-ts.graph.collapsePattern`: Set the pattern used to collapse parts of the graph
+* `dependency-cruiser-ts.analysis.collapsePattern`: Pattern used to collapse many graph nodes into one. [More info](https://github.com/sverweij/dependency-cruiser/blob/main/doc/options-reference.md#summarising-collapsepattern-dot-and-archi-reporters)
+* `dependency-cruiser-ts.analysis.tsConfigPattern`: Pattern used to auto detect your `tsconfig` or `jsconfig` file.
+* `dependency-cruiser-ts.graph.colorScheme`: Enables or disables dark mode.
+* `dependency-cruiser-ts.graph.direction`: Direction of the graph (left to right, top to bottom, etc.).
+* `dependency-cruiser-ts.graph.lineShapes`: Shape of the lines between nodes (whether straight or curved, whether they avoid other nodes or go though them).
+* `dependency-cruiser-ts.graph.theme`: Theme used to draw the graph.

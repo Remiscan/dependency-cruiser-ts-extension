@@ -36,52 +36,46 @@
     "configuration": {
       "title": "Dependency Cruiser TS",
       "properties": {
-        "dependency-cruiser-ts.tsConfigPattern": {
+        "dependency-cruiser-ts.analysis.tsConfigPattern": {
           "type": "string",
           "default": "*{ts,js}config*.json",
-          "markdownDescription": "Glob pattern for the file **name** (not path) of the tsconfig file. The extension will walk back from the folder that contains the analyzed file, and check each ancestor folder until it finds a tsconfig file that matches the pattern. If multiple matching files are found, you will be prompted to choose one."
-        },
-        "dependency-cruiser-ts.analysis.reporter": {
-          "type": "string",
-          "default": "dot",
-          "markdownDescription": "Reporter used to generate the graph. Makes the nodes represent files (dot), folders (ddot) or ? (archi)",
-          "enum": [
-            "dot",
-            "ddot",
-            "archi"
-          ],
-          "enumItemLabels": [
-            "File level",
-            "Folder level"
-          ]
+          "description": "Glob pattern for the file name of the tsconfig file. The extension will look for files matching this pattern in the workspace folder of the analyzed file. If multiple matching files are found, you will be prompted to pick one."
         },
         "dependency-cruiser-ts.analysis.collapsePattern": {
           "type": "string",
           "default": "node_modules/(@[^/]+/[^/]+|[^/]+)",
-          "mardownDescription": "Regular expression used to collapse parts of the graph."
+          "markdownDescription": "Regular expression used to collapse parts of the graph. For example, if your project imports `@foo/bar/one.js`, `@foo/bar/two.js` and `@foo/qux/three.js` :\n- `node_modules/(@[^/]+/[^/]+|[^/]+)` will collapse the `node_modules` part of the graph into two nodes: `@foo/bar` and `@foo/qux`\n- `node_modules/[^/]+` will collapse the `node_modules` part of the graph into one node: `@foo`"
         },
         "dependency-cruiser-ts.graph.theme": {
           "type": "string",
           "default": "improved",
-          "markdownDescription": "Visual theme used in the graph.",
-          "enum": ["improved", "default"]
+          "description": "Visual theme used in the graph.",
+          "enum": ["improved", "basic", "none"]
         },
         "dependency-cruiser-ts.graph.colorScheme": {
           "type": "string",
           "default": "system",
-          "markdownDescription": "Color scheme (light or dark) used in the graph.",
+          "description": "Color scheme (light or dark) used in the graph.",
           "enum": ["system", "light", "dark"],
           "enumDescriptions": ["Follows your system settings", "Light mode", "Dark mode"]
         },
         "dependency-cruiser-ts.graph.linesShape": {
           "type": "string",
           "default": "spline",
-          "markdownDescription": "Controls the shape of the lines between nodes.",
-          "enum": ["spline", "curved", "ortho", "line", "polyline"]
+          "description": "Controls the shape of the lines between nodes.",
+          "enum": ["spline", "curved", "ortho", "line", "polyline"],
+          "enumDescriptions": [
+            "Lines will be curved and avoid other nodes",
+            "Lines will be curved an go through other nodes",
+            "Lines will be straight and make right angles",
+            "Lines will be straight",
+            "Lines will move in multiple successive straight paths"
+          ]
         },
         "dependency-cruiser-ts.graph.direction": {
           "type": "string",
           "default": "LR",
+          "description": "Direction of the graph, i.e. the direction from a node A to the nodes of the modules imported by A.",
           "enum": [
             "LR",
             "TB",
@@ -93,6 +87,12 @@
             "Top to bottom",
             "Right to left",
             "Bottom to top"
+          ],
+          "enumDescriptions": [
+            "If a module A imports a module B, then B will be drawn to the right of A",
+            "If a module A imports a module B, then B will be drawn to the bottom of A",
+            "If a module A imports a module B, then B will be drawn to the left of A",
+            "If a module A imports a module B, then B will be drawn to the top of A"
           ]
         }
       }
