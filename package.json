@@ -3,7 +3,11 @@
   "displayName": "Dependency Cruiser TS",
   "description": "Generates a dependency graph from a JavaScript or TypeScript file",
   "version": "0.0.1",
-  "publisher": "Remiscan",
+  "publisher": "remiscan",
+  "galleryBanner": {
+    "color": "#283178"
+  },
+  "icon": "./assets/icon.png",
   "engines": {
     "vscode": "^1.88.0"
   },

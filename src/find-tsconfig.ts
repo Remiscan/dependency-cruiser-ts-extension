@@ -21,11 +21,6 @@ async function promptUserToChooseTsConfig(
 		const currentPath = filePath.split('/');
 		while (currentPath.length > 0) {
 			currentPath.pop();
-			console.error(
-				absoluteAnalyzedFilePath,
-				filePath,
-				currentPath.join('/')
-			);
 			if (absoluteAnalyzedFilePath.startsWith(currentPath.join('/'))) return -currentPath.length;
 		}
 		return 0;
