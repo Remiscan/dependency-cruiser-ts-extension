@@ -2,7 +2,7 @@
   "name": "dependency-cruiser-ts",
   "displayName": "Dependency Cruiser TS",
   "description": "Generates a dependency graph from a JavaScript or TypeScript file",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "remiscan",
   "galleryBanner": {
     "color": "#283178",
