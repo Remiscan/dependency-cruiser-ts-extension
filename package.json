@@ -5,20 +5,25 @@
   "version": "0.1.0",
   "publisher": "remiscan",
   "galleryBanner": {
-    "color": "#283178"
+    "color": "#283178",
+    "theme": "dark"
   },
   "icon": "./assets/icon.png",
   "engines": {
     "vscode": "^1.88.0"
   },
   "categories": [
-    "Other"
+    "Visualization"
   ],
+  "homepage": "https://github.com/Remiscan/dependency-cruiser-ts-extension",
+  "bugs": {
+    "url": "https://github.com/Remiscan/dependency-cruiser-ts-extension/issues",
+    "email": "contact@remiscan.fr"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Remiscan/dependency-cruiser-ts-extension.git"
   },
-  "homepage": "https://github.com/Remiscan/dependency-cruiser-ts-extension",
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {

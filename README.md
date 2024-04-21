@@ -2,9 +2,13 @@
 
 This VS Code extension uses [dependency-cruiser](https://github.com/sverweij/dependency-cruiser) and [viz-js](https://github.com/mdaines/viz-js) to generate a dependency graph from a JavaScript or TypeScript file.
 
+![Example graph](https://raw.githubusercontent.com/Remiscan/dependency-cruiser-ts-extension/main/assets/example.png)
+
 ## Features
 
 - Right-click on a JS or TS file, choose "See dependency graph", and the graph will open in a new VS Code tab.
+- Alternatively, open a JS or TS file and run the "See dependency graph" command from the command palette.
+- Click on a node in the graph to open the associated file.
 
 ## Extension Settings
 
@@ -25,5 +29,5 @@ Some preset rules are available right in the extension. Enable them with these s
 
 * `dependency-cruiser-ts.graph.colorScheme`: Enables or disables dark mode.
 * `dependency-cruiser-ts.graph.direction`: Direction of the graph (left to right, top to bottom, etc.).
-* `dependency-cruiser-ts.graph.lineShapes`: Shape of the lines between nodes (whether straight or curved, whether they avoid other nodes or go though them).
+* `dependency-cruiser-ts.graph.lineShapes`: Shape of the lines between nodes (for example whether straight or curved, whether they avoid other nodes or go though them).
 * `dependency-cruiser-ts.graph.theme`: Theme used to draw the graph.
