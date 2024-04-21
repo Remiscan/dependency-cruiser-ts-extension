@@ -15,6 +15,9 @@
   "categories": [
     "Visualization"
   ],
+  "keywords": [
+    "typescript", "javascript", "dependencies", "imports", "graph"
+  ],
   "homepage": "https://github.com/Remiscan/dependency-cruiser-ts-extension",
   "bugs": {
     "url": "https://github.com/Remiscan/dependency-cruiser-ts-extension/issues",
