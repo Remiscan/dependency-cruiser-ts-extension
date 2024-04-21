@@ -35,7 +35,6 @@ function makeCommandHandler(
 			title: `Computing dependency graph for "${fileName}"...`
 		}, async (progress) => {
 			try {
-				const isTypeScript = fileUri
 				// Analyze dependencies
 				process.chdir(workspaceFolderPath);
 				const analysis = await analyzeDependencies(
@@ -59,7 +58,13 @@ function makeCommandHandler(
 
 			catch (error) {
 				if (error instanceof Error) {
-					vscode.window.showErrorMessage(error.message);
+					const configurationError = error.stack?.includes("at normalizeCruiseOptions");
+					console.error(error);
+					vscode.window.showErrorMessage(
+						configurationError
+							? `Your \`.dependency-cruiser.json\` file is not correctly formatted (error: ${error.message})`
+							: `An error occurred: ${error.message}`
+					);
 				}
 			}
 

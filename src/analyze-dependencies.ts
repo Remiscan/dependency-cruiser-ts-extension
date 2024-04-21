@@ -50,13 +50,49 @@ export async function analyzeDependencies(
 	// --------------------
 
 
+	// --------------------------------
+	// #region GET CUSTOM CONFIGURATION
+
+	type RuleSet = NonNullable<NonNullable<Parameters<typeof cruise>[1]>['ruleSet']>;
+	type Rule = NonNullable<RuleSet['forbidden']>[0];
+
+	type CruiseOptions = NonNullable<Parameters<typeof cruise>[1]>;
+	interface CruiseConfig extends RuleSet {
+		options: CruiseOptions
+	}
+
+	let options: CruiseOptions | undefined;
+
+	if (userSettings.analysis.enableCustomConfiguration) {
+		// Find the custom configuration file if it exists
+		const customConfigurationFilePath = `${workspaceFolderPath}/.dependency-cruiser.json`;
+		let customConfiguration: CruiseConfig | undefined;
+		try {
+			const uri = vscode.Uri.file(customConfigurationFilePath);
+			customConfiguration = JSON.parse(
+				(await vscode.workspace.fs.readFile(uri)).toString()
+			);
+		} catch (e) {}
+
+		// If the custom configuration file exists, use it to configure `dependency-cruiser`
+		if (customConfiguration) {
+			options = customConfiguration.options ?? {};
+			const ruleSet: Partial<CruiseConfig> = { ...customConfiguration };
+			delete ruleSet.options;
+			options.ruleSet = ruleSet;
+		}
+	}
+
+	// #endregion
+	// --------------------------------
+
+
 	// ------------------------
 	// #region GET PRESET RULES
 
-	type Rule = NonNullable<NonNullable<NonNullable<Parameters<typeof cruise>[1]>['ruleSet']>['forbidden']>[0];
-	const rules: Rule[] = [];
-	if (userSettings.analysis.rules.noCircular) rules.push(await importDefault('./rules/noCircular.js'));
-	if (userSettings.analysis.rules.noDev) rules.push(await importDefault('./rules/noDev.js'));
+	const presetRules: Rule[] = [];
+	if (userSettings.analysis.rules.noCircular) presetRules.push(await importDefault('./rules/noCircular.js'));
+	if (userSettings.analysis.rules.noDev) presetRules.push(await importDefault('./rules/noDev.js'));
 
 	// #endregion
 	// ------------------------
@@ -65,25 +101,35 @@ export async function analyzeDependencies(
 	// ---------------------------
 	// #region CRUISE DEPENDENCIES
 
-	const options: NonNullable<Parameters<typeof cruise>[1]> = {
-		outputType: 'dot',
-		moduleSystems: ['es6', 'cjs'],
-		tsPreCompilationDeps: true,
-		tsConfig: { fileName: tsConfigUri?.path },
-		includeOnly: userSettings.analysis.includeOnly || undefined,
-		exclude: userSettings.analysis.exclude || undefined,
-		validate: rules.length > 0,
-		ruleSet: {
-			forbidden: rules,
-		},
-		reporterOptions: {
-			dot: {
-				theme: theme,
-				collapsePattern: userSettings.analysis.collapsePattern,
-			}
-		},
-		parser: 'tsc',
-	};
+	// If no custom configuration was found, use the extension's configuration
+	if (typeof options === 'undefined') {
+		options = {
+			"outputType": "dot",
+			"moduleSystems": ["es6", "cjs"],
+			"tsPreCompilationDeps": true,
+			"tsConfig": { "fileName": tsConfigUri?.path },
+			"includeOnly": userSettings.analysis.includeOnly || undefined,
+			"exclude": userSettings.analysis.exclude || undefined,
+			"validate": presetRules.length > 0,
+			"ruleSet": {
+				"forbidden": presetRules,
+			},
+			"reporterOptions": {
+				"dot": {
+					"theme": theme,
+					"collapsePattern": userSettings.analysis.collapsePattern,
+				}
+			},
+			"parser": 'tsc',
+		};
+	}
+	
+	// if a custom configuration is applied, add the enabled preset rules to it
+	else {
+		if (!('ruleSet' in options)) options.ruleSet = {};
+		if (!('forbidden' in options.ruleSet!)) options.ruleSet!.forbidden = [];
+		options.ruleSet!.forbidden?.push(...presetRules);
+	}
 
 	const cruiseResult: Awaited< ReturnType<typeof cruise> > = await cruise(
 		[relativeFilePath],

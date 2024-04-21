@@ -6,8 +6,8 @@ export function getDefaultExport<T = unknown>(dynamicImport: any): T {
 }
 
 /** Imports the default export from a module, unnested for node. */
-export async function importDefault<T = unknown>(identifier: string): Promise<T> {
+export async function importDefault<T = unknown>(identifier: string, options?: ImportCallOptions): Promise<T> {
 	return getDefaultExport<T>(
-		await import(identifier)
+		await import(identifier, options)
 	);
 }

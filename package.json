@@ -39,15 +39,20 @@
     "configuration": {
       "title": "Dependency Cruiser TS",
       "properties": {
+        "dependency-cruiser-ts.analysis.enableCustomConfiguration": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Looks for a `.dependency-cruiser.json` file at the root of your workspace folder. If one is found, it will overwrite the extension's configuration of `dependency-cruiser`, giving you full control of it. [Learn more abour its syntax in the `dependency-cruiser` documentation](https://github.com/sverweij/dependency-cruiser/blob/main/doc/rules-reference.md)."
+        },
         "dependency-cruiser-ts.analysis.rules.noCircular": {
           "type": "boolean",
           "default": false,
-          "description": "Warns you abour circular dependencies, by highlighting them on the graph."
+          "description": "Warns you about circular dependencies, by highlighting them on the graph."
         },
         "dependency-cruiser-ts.analysis.rules.noDev": {
           "type": "boolean",
           "default": false,
-          "description": "Warns you abour imported dev dependencies in your `src` folder, by highlighting them on the graph."
+          "description": "Warns you about imported dev dependencies in your `src` folder, by highlighting them on the graph."
         },
         "dependency-cruiser-ts.analysis.tsConfigPattern": {
           "type": "string",
@@ -57,7 +62,7 @@
         "dependency-cruiser-ts.analysis.collapsePattern": {
           "type": "string",
           "default": "node_modules/(@[^/]+/[^/]+|[^/]+)",
-          "markdownDescription": "Regular expression used to collapse parts of the graph. For example, if your project imports `@foo/bar/one.js`, `@foo/bar/two.js` and `@foo/qux/three.js` :\n- `node_modules/(@[^/]+/[^/]+|[^/]+)` will collapse the `node_modules` part of the graph into two nodes: `@foo/bar` and `@foo/qux`\n- `node_modules/[^/]+` will collapse the `node_modules` part of the graph into one node: `@foo`"
+          "markdownDescription": "Regular expression used to collapse many graph nodes into a single one. For example, if your project imports `@foo/bar/one.js`, `@foo/bar/two.js` and `@foo/qux/three.js` :\n- `node_modules/(@[^/]+/[^/]+|[^/]+)` will collapse the `node_modules` part of the graph into two nodes: `@foo/bar` and `@foo/qux`\n- `node_modules/[^/]+` will collapse the `node_modules` part of the graph into one node: `@foo`"
         },
         "dependency-cruiser-ts.analysis.includeOnly": {
           "type": "string",
