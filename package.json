@@ -50,7 +50,7 @@
         "dependency-cruiser-ts.analysis.enableCustomConfiguration": {
           "type": "boolean",
           "default": true,
-          "markdownDescription": "Looks for a `.dependency-cruiser.json` file at the root of your workspace folder. If one is found, it will overwrite the extension's configuration of `dependency-cruiser`, giving you full control of it. [Learn more abour its syntax in the `dependency-cruiser` documentation](https://github.com/sverweij/dependency-cruiser/blob/main/doc/rules-reference.md)."
+          "markdownDescription": "Looks for a `.dependency-cruiser.json` file at the root of your workspace folder. If one is found, **it will overwrite this extension's settings** for `dependency-cruiser`, giving you full control of it. [Learn more abour its syntax in the `dependency-cruiser` documentation](https://github.com/sverweij/dependency-cruiser/blob/main/doc/rules-reference.md)."
         },
         "dependency-cruiser-ts.analysis.rules.noCircular": {
           "type": "boolean",

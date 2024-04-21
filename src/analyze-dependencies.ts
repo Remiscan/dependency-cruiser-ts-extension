@@ -123,13 +123,6 @@ export async function analyzeDependencies(
 			"parser": 'tsc',
 		};
 	}
-	
-	// if a custom configuration is applied, add the enabled preset rules to it
-	else {
-		if (!('ruleSet' in options)) options.ruleSet = {};
-		if (!('forbidden' in options.ruleSet!)) options.ruleSet!.forbidden = [];
-		options.ruleSet!.forbidden?.push(...presetRules);
-	}
 
 	const cruiseResult: Awaited< ReturnType<typeof cruise> > = await cruise(
 		[relativeFilePath],
