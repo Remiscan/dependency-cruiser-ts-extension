@@ -1,13 +1,12 @@
 import * as vscode from 'vscode';
 import { findTsConfig } from './find-tsconfig';
+import { importDefault } from './get-default-export';
 
 
 
 type Theme = {
 	graph?: { [key: string]: unknown },
 };
-
-type ImportedTheme = { default: Theme } | { default: { default: Theme }};
 
 
 /**
@@ -30,11 +29,7 @@ export async function analyzeDependencies(
 	// ----------------------
 	// #region GET USER THEME
 
-	const themeFile: ImportedTheme = await import(`./themes/${userSettings.graph.theme}.js`);
-
-	// Node nests the default export...
-	let theme = themeFile.default;
-	if ('default' in theme) theme = theme.default;
+	const theme = await importDefault<Theme>(`./themes/${userSettings.graph.theme}.js`);
 
 	if (!('graph' in theme) || typeof theme.graph !== 'object') theme.graph = {};
 	theme.graph.rankdir = userSettings.graph.direction; // Graph direction
@@ -55,6 +50,18 @@ export async function analyzeDependencies(
 	// --------------------
 
 
+	// ------------------------
+	// #region GET PRESET RULES
+
+	type Rule = NonNullable<NonNullable<NonNullable<Parameters<typeof cruise>[1]>['ruleSet']>['forbidden']>[0];
+	const rules: Rule[] = [];
+	if (userSettings.analysis.rules.noCircular) rules.push(await importDefault('./rules/noCircular.js'));
+	if (userSettings.analysis.rules.noDev) rules.push(await importDefault('./rules/noDev.js'));
+
+	// #endregion
+	// ------------------------
+
+
 	// ---------------------------
 	// #region CRUISE DEPENDENCIES
 
@@ -65,6 +72,10 @@ export async function analyzeDependencies(
 		tsConfig: { fileName: tsConfigUri?.path },
 		includeOnly: userSettings.analysis.includeOnly || undefined,
 		exclude: userSettings.analysis.exclude || undefined,
+		validate: rules.length > 0,
+		ruleSet: {
+			forbidden: rules,
+		},
 		reporterOptions: {
 			dot: {
 				theme: theme,

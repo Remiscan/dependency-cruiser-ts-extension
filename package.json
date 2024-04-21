@@ -39,6 +39,16 @@
     "configuration": {
       "title": "Dependency Cruiser TS",
       "properties": {
+        "dependency-cruiser-ts.analysis.rules.noCircular": {
+          "type": "boolean",
+          "default": false,
+          "description": "Warns you abour circular dependencies, by highlighting them on the graph."
+        },
+        "dependency-cruiser-ts.analysis.rules.noDev": {
+          "type": "boolean",
+          "default": false,
+          "description": "Warns you abour imported dev dependencies in your `src` folder, by highlighting them on the graph."
+        },
         "dependency-cruiser-ts.analysis.tsConfigPattern": {
           "type": "string",
           "default": "*{ts,js}config*.json",
