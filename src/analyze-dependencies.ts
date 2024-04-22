@@ -26,30 +26,6 @@ export async function analyzeDependencies(
 	const cruise = DepCruiser.cruise;
 
 
-	// ----------------------
-	// #region GET USER THEME
-
-	const theme = await importDefault<Theme>(`./themes/${userSettings.graph.theme}.js`);
-
-	if (!('graph' in theme) || typeof theme.graph !== 'object') theme.graph = {};
-	theme.graph.rankdir = userSettings.graph.direction; // Graph direction
-	theme.graph.splines = userSettings.graph.linesShape; // Shape of the lines between nodes
-
-	// #endregion
-	// ----------------------
-
-
-	// --------------------
-	// #region GET TSCONFIG
-
-	const tsConfigUri = isTypescript
-		? await findTsConfig(relativeFilePath, workspaceFolderPath, userSettings)
-		: undefined;
-
-	// #endregion
-	// --------------------
-
-
 	// --------------------------------
 	// #region GET CUSTOM CONFIGURATION
 
@@ -87,22 +63,30 @@ export async function analyzeDependencies(
 	// --------------------------------
 
 
-	// ------------------------
-	// #region GET PRESET RULES
-
-	const presetRules: Rule[] = [];
-	if (userSettings.analysis.rules.noCircular) presetRules.push(await importDefault('./rules/noCircular.js'));
-	if (userSettings.analysis.rules.noDev) presetRules.push(await importDefault('./rules/noDev.js'));
-
-	// #endregion
-	// ------------------------
-
-
-	// ---------------------------
-	// #region CRUISE DEPENDENCIES
+	// -----------------------------------------
+	// #region DEFINE DEPENDENCY-CRUISER OPTIONS
 
 	// If no custom configuration was found, use the extension's configuration
 	if (typeof options === 'undefined') {
+		// GET USER THEME
+		const theme = await importDefault<Theme>(`./themes/${userSettings.graph.theme}.js`);
+		if (!('graph' in theme) || typeof theme.graph !== 'object') theme.graph = {};
+		theme.graph.rankdir = userSettings.graph.direction; // Graph direction
+		theme.graph.splines = userSettings.graph.linesShape; // Shape of the lines between nodes
+
+
+		// GET TSCONFIG
+		const tsConfigUri = isTypescript
+			? await findTsConfig(relativeFilePath, workspaceFolderPath, userSettings)
+			: undefined;
+
+
+		// GET PRESET RULES
+		const presetRules: Rule[] = [];
+		if (userSettings.analysis.rules.noCircular) presetRules.push(await importDefault('./rules/noCircular.js'));
+		if (userSettings.analysis.rules.noDev) presetRules.push(await importDefault('./rules/noDev.js'));
+
+
 		options = {
 			"outputType": "dot",
 			"moduleSystems": ["es6", "cjs"],
@@ -124,13 +108,20 @@ export async function analyzeDependencies(
 		};
 	}
 
+	// # endregion
+	// -----------------------------------------
+
+
+	// --------------
+	// #region CRUISE
+
 	const cruiseResult: Awaited< ReturnType<typeof cruise> > = await cruise(
 		[relativeFilePath],
 		options
 	);
 
-	// # endregion
-	// ---------------------------
+	// #endregion
+	// --------------
 
 
 	return cruiseResult;
