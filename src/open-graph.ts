@@ -7,21 +7,32 @@ import * as vscode from 'vscode';
  * @param colorScheme - The color scheme extension setting.
  * @returns A string containing the CSS.
  */
-function makePanelStyles(colorScheme: string): string {
+function makePanelDarkStyles(colorScheme: string): string {
+	const lightModeStyle = /*css*/`
+		:root {
+			color-scheme: light;
+		}
+	`;
 	const darkModeStyle = /*css*/`
-		body {
+		:root {
+			color-scheme: dark;
+		}
+		body, header {
 			filter: invert() hue-rotate(180deg);
 		}
 	`;
 
 	let style = '';
 	switch (colorScheme) {
-		case 'light': break;
+		case 'light':
+			style = lightModeStyle
+			break;
 		case 'dark':
 			style = darkModeStyle
 			break;
 		default:
 			style = /*css*/`
+				${lightModeStyle}
 				@media (prefers-color-scheme: dark) {
 					${darkModeStyle}
 				}
@@ -112,10 +123,64 @@ export function openGraph(
 				<meta charset="UTF-8">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<title${title}</title>
-				<style>${makePanelStyles(userSettings.graph.colorScheme)}</style>
+				<style>
+					body {
+						padding-top: 30px;
+					}
+					header {
+						position: fixed;
+						z-index: 5;
+						top: 0;
+						left: 0;
+						width: 100vw;
+						display: flex;
+						flex-direction: row;
+						justify-content: center;
+						align-items: center;
+						gap: 20px;
+						height: 30px;
+						background-color: var(--vscode-editor-background);
+						color: var(--vscode-editor-foreground);
+					}
+					a {
+						color: var(--vscode-textLink-foreground);
+					}
+					#zoom-level {
+						display: inline-block;
+						width: 5ch;
+					}
+					button {
+						background: var(--vscode-button-secondaryBackground);
+						color: var(--vscode-button-secondaryForeground);
+						border: 1px solid var(--vscode-button-border);
+						border-radius: 2px;
+						height: 25px;
+						min-width: 40px;
+					}
+					button:is(:hover, :focus-visible) {
+						background: var(--vscode-button-secondaryHoverBackground);
+					}
+					svg {
+						transform-origin: top left;
+						height: auto;
+						backface-visibility: hidden;
+					}
+					${makePanelDarkStyles(userSettings.graph.colorScheme)}
+				</style>
 				<script type="module" src="${panelScriptUri}"></script>
+				<script type="module" src="${
+					panel.webview.asWebviewUri(
+						vscode.Uri.joinPath(context.extensionUri, 'out/webview/custom-zoom.js')
+					)
+				}"></script>
 			</head>
 			<body>
+				<header>
+					<button type="button" id="zoom-down"> − </button>
+					<span>Zoom level <span id="zoom-level">100%</span></span>
+					<button type="button" id="zoom-up"> + </button>
+					<button type="button" id="reset-zoom">Reset zoom level</button>
+				</header>
 				${graph}
 			</body>
 		</html>
