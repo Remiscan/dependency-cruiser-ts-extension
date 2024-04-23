@@ -1,9 +1,8 @@
 export default {
 	graph: {
 		bgcolor: "#eee",
-		color: "gray",
+		color: "#80808040",
 		fontcolor: "black",
-		fillcolor: "transparent",
 		style: "rounded",
 		nodesep: 0.25,
 		ranksep: 0.25,
