@@ -38,6 +38,7 @@ export async function analyzeDependencies(
 	}
 
 	let options: CruiseOptions | undefined;
+	let ruleSet: Partial<RuleSet> | undefined;
 
 	if (userSettings.analysis.enableCustomConfiguration) {
 		// Find the custom configuration file if it exists
@@ -51,11 +52,20 @@ export async function analyzeDependencies(
 		} catch (e) {}
 
 		// If the custom configuration file exists, use it to configure `dependency-cruiser`
-		if (customConfiguration) {
-			options = customConfiguration.options ?? {};
-			const ruleSet: Partial<CruiseConfig> = { ...customConfiguration };
-			delete ruleSet.options;
-			options.ruleSet = ruleSet;
+		if (customConfiguration && Object.keys(customConfiguration).length > 0) {
+			if ('options' in customConfiguration) {
+				options = customConfiguration.options;
+			}
+
+			if (
+				'forbidden' in customConfiguration ||
+				'allowed' in customConfiguration ||
+				'allowedSeverity' in customConfiguration ||
+				'required' in customConfiguration
+			) {
+				ruleSet = { ...customConfiguration };
+				if ('options' in ruleSet) delete ruleSet.options;
+			}
 		}
 	}
 
@@ -66,7 +76,7 @@ export async function analyzeDependencies(
 	// -----------------------------------------
 	// #region DEFINE DEPENDENCY-CRUISER OPTIONS
 
-	// If no custom configuration was found, use the extension's configuration
+	// If no custom configuration was found, or it contains no options, use the extension's configuration for options
 	if (typeof options === 'undefined') {
 		// GET USER THEME
 		const theme = await importDefault<Theme>(`./themes/${userSettings.graph.theme}.js`);
@@ -81,12 +91,6 @@ export async function analyzeDependencies(
 			: undefined;
 
 
-		// GET PRESET RULES
-		const presetRules: Rule[] = [];
-		if (userSettings.analysis.rules.noCircular) presetRules.push(await importDefault('./rules/noCircular.js'));
-		if (userSettings.analysis.rules.noDev) presetRules.push(await importDefault('./rules/noDev.js'));
-
-
 		options = {
 			"outputType": "dot",
 			"moduleSystems": ["es6", "cjs"],
@@ -94,10 +98,6 @@ export async function analyzeDependencies(
 			"tsConfig": { "fileName": tsConfigUri?.path },
 			"includeOnly": userSettings.analysis.includeOnly || undefined,
 			"exclude": userSettings.analysis.exclude || undefined,
-			"validate": presetRules.length > 0,
-			"ruleSet": {
-				"forbidden": presetRules,
-			},
 			"reporterOptions": {
 				"dot": {
 					"theme": theme,
@@ -107,6 +107,22 @@ export async function analyzeDependencies(
 			"parser": 'tsc',
 		};
 	}
+
+	// If no custom configuration was found, or it contains no rules, use the extension's configuration for rules
+	if (typeof ruleSet === 'undefined') {
+		// GET PRESET RULES
+		const presetRules: Rule[] = [];
+		if (userSettings.analysis.rules.noCircular) presetRules.push(await importDefault('./rules/noCircular.js'));
+		if (userSettings.analysis.rules.noDev) presetRules.push(await importDefault('./rules/noDev.js'));
+
+		ruleSet = {
+			"forbidden": presetRules,
+		};
+	}
+
+	// Apply the ruleSet to the options
+	options.ruleSet = ruleSet;
+	if (Object.keys(ruleSet).length > 0) options.validate = true;
 
 	// # endregion
 	// -----------------------------------------
