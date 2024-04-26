@@ -51,6 +51,7 @@ function makeCommandHandler(
 				return openGraph(
 					graph,
 					`${fileName} (dependencies)`,
+					workspaceFolderPath,
 					userSettings,
 					context
 				);

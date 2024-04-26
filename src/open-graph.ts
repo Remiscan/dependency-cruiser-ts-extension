@@ -86,6 +86,7 @@ async function openFileInVSCode(path: string) {
 export function openGraph(
 	graph: string,
 	title: string,
+	workspaceFolderPath: string,
 	userSettings: vscode.WorkspaceConfiguration,
 	context: vscode.ExtensionContext,
 ): void {
@@ -102,18 +103,43 @@ export function openGraph(
 		}
 	);
 
-	// Listen for messages from the tab, asking to open files whose nodes were clicked on
+	// Listen for messages from the tab
 	panel.webview.onDidReceiveMessage(
 		async (message) => {
 			switch (message.action) {
-				case 'open': openFileInVSCode(message.path); break;
+				// Open the file corresponding the the clicked node in VS Code
+				case 'open':
+					openFileInVSCode(message.path);
+					break;
+				// Show a notification
+				case 'notify':
+					vscode.window.showInformationMessage(message.content);
+					break;
+				// Save the graph as an SVG file
+				case 'save-svg':
+					const file = await vscode.window.showSaveDialog({
+						title: "Where do you want to save the SVG file?",
+						filters: {
+							"Images": ["svg"]
+						},
+						//defaultUri: vscode.Uri.parse(`${title.replace(' (dependencies)', '.dependency-graph')}.svg`)
+						defaultUri: vscode.Uri.joinPath(
+							vscode.Uri.parse(workspaceFolderPath),
+							`${title.replace(' (dependencies)', '.dependency-graph')}.svg`
+						)
+					});
+					if (file) {
+						try {
+							await vscode.workspace.fs.writeFile(file, (new TextEncoder).encode(message.content));
+							vscode.window.showInformationMessage('File saved.');
+						} catch (error) {
+							vscode.window.showErrorMessage(`Could not save the file: ${error}`);
+						}
+					}
+					break;
 			}
 		}
 	);
-
-	// Load the script that will send messages to open files when their nodes are clicked on
-	const scriptUri = vscode.Uri.joinPath(context.extensionUri, 'out/webview/open-links-in-vscode.js');
-	const panelScriptUri = panel.webview.asWebviewUri(scriptUri);
 
 	// Create the tab's HTML
 	panel.webview.html = `
@@ -182,7 +208,11 @@ export function openGraph(
 					}
 					${makePanelDarkStyles(userSettings.graph.colorScheme)}
 				</style>
-				<script type="module" src="${panelScriptUri}"></script>
+				<script type="module" src="${
+					panel.webview.asWebviewUri(
+						vscode.Uri.joinPath(context.extensionUri, 'out/webview/open-links-in-vscode.js')
+					)
+				}"></script>
 				<script type="module" src="${
 					panel.webview.asWebviewUri(
 						vscode.Uri.joinPath(context.extensionUri, 'out/webview/custom-zoom.js')
@@ -195,6 +225,8 @@ export function openGraph(
 					<span>Zoom level <span id="zoom-level">100%</span></span>
 					<button type="button" id="zoom-up"> + </button>
 					<button type="button" id="reset-zoom">Reset zoom level</button>
+					<button type="button" id="save-file">Save as SVG</button>
+					<button type="button" id="copy-url">Copy graph as data URL</button>
 				</header>
 				<div class="svg-container">
 					${graph}
