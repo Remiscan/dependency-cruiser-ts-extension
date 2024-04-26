@@ -124,21 +124,30 @@ export function openGraph(
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<title${title}</title>
 				<style>
+					html {
+						width: 100%;
+						height: 100%;
+						overflow: hidden;
+					}
 					body {
-						padding-top: 30px;
+						padding: 0px;
+						overflow: hidden;
+						width: 100%;
+						height: 100%;
+						display: grid;
+						grid-template-rows: 30px minmax(0, 1fr);
+						grid-template-columns: minmax(0, 1fr);
+					}
+					body > * {
+						display: contents;
 					}
 					header {
-						position: fixed;
 						z-index: 5;
-						top: 0;
-						left: 0;
-						width: 100vw;
 						display: flex;
 						flex-direction: row;
 						justify-content: center;
 						align-items: center;
 						gap: 20px;
-						height: 30px;
 						background-color: var(--vscode-editor-background);
 						color: var(--vscode-editor-foreground);
 					}
@@ -160,10 +169,16 @@ export function openGraph(
 					button:is(:hover, :focus-visible) {
 						background: var(--vscode-button-secondaryHoverBackground);
 					}
+					.svg-container {
+						display: grid;
+						place-content: start;
+						overflow: auto;
+						scrollbar-gutter: stable;
+					}
 					svg {
-						transform-origin: top left;
 						height: auto;
-						backface-visibility: hidden;
+						margin-right: 100vmax; /* so there's always room to zoom in on the point under the mouse pointer */
+						margin-bottom: 100vmax; /* so there's always room to zoom in on the point under the mouse pointer */
 					}
 					${makePanelDarkStyles(userSettings.graph.colorScheme)}
 				</style>
@@ -181,7 +196,9 @@ export function openGraph(
 					<button type="button" id="zoom-up"> + </button>
 					<button type="button" id="reset-zoom">Reset zoom level</button>
 				</header>
-				${graph}
+				<div class="svg-container">
+					${graph}
+				</div>
 			</body>
 		</html>
 	`;
