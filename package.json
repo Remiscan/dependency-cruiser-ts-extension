@@ -2,7 +2,7 @@
   "name": "dependency-cruiser-ts",
   "displayName": "Dependency Cruiser TS",
   "description": "Generates a dependency graph from a JavaScript or TypeScript file",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "publisher": "remiscan",
   "galleryBanner": {
     "color": "#686387",
@@ -153,7 +153,7 @@
   "scripts": {
     "bundle:dc": "esbuild ./node_modules/dependency-cruiser/src/main/cruise.mjs --bundle --minify --outfile=dist/dependency-cruiser.js --external:vscode --external:enhanced-resolve/lib/createInnerCallback --alias:dependency-cruiser=dist/dependency-cruiser.js --format=esm --platform=node && rollup --config rollup.dc.config.mjs",
     "vscode:prepublishNON": "npm run esbuild-base -- --minify",
-    "vscode:prepublish": "npm run copy && npm run compile",
+    "vscode:prepublish": "rm -rf out && rm -rf dist && npm run copy && npm run compile",
     "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node",
     "esbuild": "npm run esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
