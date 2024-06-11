@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.2.1]
+
+- Fix "no such file or directory" errors on Windows.
+
+### Known issues
+
+- The generated graph is incorrect if your VS Code folder is open in Windows (unconnected to WSL) but the analyzed file is stored in WSL. To avoid this, use the "Reopen folder in WSL" feature in VS Code.
+
 ## [0.2.0]
 
 - **New feature:** zoom in or out on the graph, by:

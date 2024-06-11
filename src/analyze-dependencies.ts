@@ -84,18 +84,16 @@ export async function analyzeDependencies(
 		theme.graph.rankdir = userSettings.graph.direction; // Graph direction
 		theme.graph.splines = userSettings.graph.linesShape; // Shape of the lines between nodes
 
-
 		// GET TSCONFIG
 		const tsConfigUri = isTypescript
 			? await findTsConfig(relativeFilePath, workspaceFolderPath, userSettings)
 			: undefined;
 
-
 		options = {
 			"outputType": "dot",
 			"moduleSystems": ["es6", "cjs"],
 			"tsPreCompilationDeps": true,
-			"tsConfig": { "fileName": tsConfigUri?.path },
+			"tsConfig": { "fileName": tsConfigUri?.fsPath },
 			"includeOnly": userSettings.analysis.includeOnly || undefined,
 			"exclude": userSettings.analysis.exclude || undefined,
 			"reporterOptions": {

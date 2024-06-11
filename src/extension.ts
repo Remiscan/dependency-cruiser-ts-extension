@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { analyzeDependencies } from './analyze-dependencies.js';
 import { makeGraph } from './make-graph.js';
 import { openGraph } from './open-graph.js';
+import { filePathSeparatorRegex } from './find-tsconfig.js';
 
 
 
@@ -15,12 +16,12 @@ function makeCommandHandler(
 		if (!fileUri) throw new Error(`Undefined file uri`);
 
 		/** Path of the workspace folder that contains the file the user wants to analyze. */
-		const workspaceFolderPath = vscode.workspace.getWorkspaceFolder(fileUri)?.uri.path;
+		const workspaceFolderPath = vscode.workspace.getWorkspaceFolder(fileUri)?.uri.fsPath;
 		if (!workspaceFolderPath) throw new Error('Undefined workspace folder path');
 
 		/** Path of the file the user wants to analyze relative to the workspace folder that contains it. */
-		const relativeFilePath = fileUri.path.replace(`${workspaceFolderPath}/`, '');
-		const fileName = relativeFilePath.split('/').at(-1);
+		const relativeFilePath = fileUri.fsPath.replace(`${workspaceFolderPath}`, '').slice(1); // slice gets rid of starting slash
+		const fileName = relativeFilePath.split(filePathSeparatorRegex).at(-1);
 
 		/**
 		 * Extension settings.  
